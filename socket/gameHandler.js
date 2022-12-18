@@ -1,0 +1,103 @@
+const User = require("../models/User");
+const jwt = require("jsonwebtoken");
+const { placeBet } = require("../utils/bustgame");
+const { stkpush } = require("../accounts/mpesa_c2b");
+const Account = require("../models/Account");
+const OperationClass = require("../accounts/transactionclass");
+
+let onlineUsers = 0;
+
+//connection definition
+const connection = async (io, socket) => {
+  // on connection function
+  onlineUsers++;
+  console.log(`⚡: ${socket.id} user connected`);
+
+  socket.emit("users_online", onlineUsers);
+  socket.on("disconnection", () => {
+    onlineUsers--;
+    socket.emit("users_onlne", onlineUsers);
+  });
+
+  socket.on("user_login", (callback) => {
+    if (!socket.isAuth) {
+      callback({ status: "unauthorized" });
+    }
+    return callback({ user: socket.user, isAuth: socket.isAuth });
+  });
+  // check auth token
+  // authorize(socket);
+  // socket play
+  socket.on("bet_place", (data, callback) => {
+    if (!socket.isAuth) {
+      callback({ status: "unauthorized" });
+    }
+    // check user account balance
+    User.findById(socket.user.id)
+      .populate("account")
+      .then((user) => {
+        const account = user.account;
+        const amount = data.amount;
+        const rate = data.rate;
+        // console.log(account);
+        if (account.balance <= 0 || account.balance < amount || amount <= 0) {
+          return callback({
+            status: "error",
+            message: "Insufficient funds on the account",
+          });
+        }
+        // if user is  player, perform account transactions
+        if (socket.user.role === "player") {
+          const deductData = {
+            amount: amount,
+            account: account,
+          };
+          const recordTrans = new OperationClass();
+          recordTrans.betplace(deductData);
+        }
+        account.balance -= amount;
+        // console.log(account.balance);
+        account.save();
+        // console.log("user", user);
+        const bet = placeBet(amount, rate, user).then((bet) => {
+          return callback({
+            status: "success",
+            message: "Bet Placed Successfully",
+          });
+        });
+      });
+  });
+  //chatting
+  socket.on("chat_send", (data) => {
+    console.log(data);
+  });
+
+  // transactions
+  socket.on("transaction_deposit", (data, callback) => {
+    if (!socket.isAuth) {
+      return callback({ status: "unauthorized" });
+    }
+    if (data.amount <= 50) {
+      return callback({
+        status: "error",
+        message: "Failed. Invalid Amount",
+      });
+    }
+    User.findById(socket.user.id)
+      .populate("account")
+      .then((user) => {
+        const xDeposit = stkpush(data.amount, user).then((result) => {
+          setTimeout(() => {
+            console.log(" res", result);
+          }, 1000);
+          // TO DO :  handle -- return response from stk call
+          return callback({
+            status: "success",
+            message: "Check your phone and enter pin",
+          });
+        });
+      });
+  });
+};
+
+module.exports = { connection };
