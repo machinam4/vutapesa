@@ -1,7 +1,14 @@
 const Game = require("../../models/Game");
-const { register, login, Adminlogin } = require("../../utils/userAuth");
+const {
+  register,
+  login,
+  Adminlogin,
+  checkUser,
+  confirmOTP,
+  passwordChange,
+} = require("../../utils/userAuth");
 const { place } = require("../../utils/bustgame");
-const Bets = require("../../models/Bets");
+const Bets = require("../../models/Bet");
 const Chat = require("../../models/Chat");
 const User = require("../../models/User");
 const Organization = require("../../models/Organization");
@@ -20,7 +27,10 @@ module.exports = {
 
   // admin queries
   // find users
-  A_users: async ({ phoneNumber }) => {
+  A_users: async ({ phoneNumber }, req) => {
+    if (!req.isAuth) {
+      throw new Error("Unauthenticated");
+    }
     if (phoneNumber === "") {
       return User.find({ role: "player" })
         .sort({ createdAt: -1 })
@@ -39,10 +49,17 @@ module.exports = {
     }
   },
 
-  organization: async () =>
-    await Organization.findOne().sort({ createdAt: -1 }),
+  organization: async (req) => {
+    if (!req.isAuth) {
+      throw new Error("Unauthenticated");
+    }
+    return Organization.findOne().sort({ createdAt: -1 });
+  },
 
-  transactions: async ({ account }) => {
+  transactions: async ({ account }, req) => {
+    if (!req.isAuth) {
+      throw new Error("Unauthenticated");
+    }
     return Transaction.find({ account: account }).sort({ createdAt: -1 });
   },
 
@@ -125,6 +142,35 @@ module.exports = {
       return newmessage;
     } catch (err) {
       throw err;
+    }
+  },
+
+  // auth resolvers
+  // getCode(phoneNumber: String!): String!
+  //   confirmCode(phoneNumber: String!): String!
+  //   passwordChange(phoneNumber: String!): String!
+  getCode: async (phoneNumber) => {
+    try {
+      const gotUser = await checkUser(phoneNumber);
+      return { ...gotUser };
+    } catch (error) {
+      throw error;
+    }
+  },
+  confirmCode: async (phoneNumber, code) => {
+    try {
+      const otp = await confirmOTP(phoneNumber, code);
+      return otp;
+    } catch (error) {
+      throw error;
+    }
+  },
+  changePassword: async (phoneNumber, password) => {
+    try {
+      const pwd = await passwordChange(phoneNumber, password);
+      return pwd;
+    } catch (error) {
+      throw error;
     }
   },
 };

@@ -1,7 +1,8 @@
 const crypto = require("crypto");
 const CryptoJS = require("crypto-js");
+const OperationClass = require("../accounts/transactionclass");
 const Account = require("../models/Account");
-const Bets = require("../models/Bets");
+const Bets = require("../models/Bet");
 const Game = require("../models/Game");
 const User = require("../models/User");
 
@@ -57,17 +58,50 @@ module.exports = {
 
   endGame: async (game) => {
     game.status = "ended";
+    winbust = game.bust;
     const EndGame = await game.save();
     const completeGame = await EndGame.bets.forEach((bet) => {
       if (bet.rate > game.bust) {
         bet.status = "lose";
       } else {
         bet.status = "win";
+        // winnings to db
+        const user = User.findOne({ _id: bet.user })
+          .populate("account")
+          .then((user) => {
+            if (user.role !== "bot") {
+              account = user.account;
+              // handle winning in accounts
+              const winnings = bet.amount * winbust;
+              const winAmount = winnings - bet.amount;
+              const taxAmount = winAmount * 0.2;
+              const taxedAmount = winnings - taxAmount;
+              const deductData = {
+                taxAmount,
+                winnings,
+                winAmount,
+                amount: taxedAmount,
+                account: account,
+              };
+              try {
+                const recordTrans = new OperationClass();
+                recordTrans.betWin(deductData);
+
+                account.balance += taxedAmount;
+                account.save();
+              } catch (error) {
+                console.log(error);
+              }
+            }
+          });
+        // end winningfto db
       }
       bet.save();
+      recordTrans.betEnded();
     });
     return true;
   },
+
   placeBet: async (amount, rate, user) => {
     // check user bet
     // console.log("user", amount, rate, user);

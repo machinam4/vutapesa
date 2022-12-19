@@ -30,6 +30,7 @@ const {
   validation,
 } = require("./accounts/mpesa_c2b");
 const { withdrawConfirm } = require("./accounts/mpesa_b2c");
+const Bets = require("./models/Bet");
 
 app.use(isAuth);
 app.use(cors());
@@ -80,11 +81,7 @@ io.use(socketAuth);
 
 let intervalId;
 
-let onlineUsers = 0;
-let gamestatus = "waiting";
-let graphValue = 20;
 let counterValue = 10;
-let bets = ["123"];
 
 const StartBust = () => {
   const waitCount = async () => {
@@ -128,8 +125,11 @@ const StartBust = () => {
     setTimeout(() => {
       bustCount(game);
     }, 3000);
+    const bets = await Bets.find({ status: "wait" })
+      .sort({ rate: -1 })
+      .populate("user");
 
-    io.sockets.emit("game_start", game.bets);
+    io.sockets.emit("game_start", bets);
   };
 
   waitCount();

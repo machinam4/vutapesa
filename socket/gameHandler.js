@@ -19,11 +19,14 @@ const connection = async (io, socket) => {
     socket.emit("users_onlne", onlineUsers);
   });
 
-  socket.on("user_login", (callback) => {
+  socket.on("user_login", async (callback) => {
     if (!socket.isAuth) {
-      callback({ status: "unauthorized" });
+      return callback({ user: null, isAuth: socket.isAuth });
     }
-    return callback({ user: socket.user, isAuth: socket.isAuth });
+    const user = await User.findById(socket.user.id)
+      .populate("account")
+      .populate("bets");
+    return callback({ user: user, isAuth: socket.isAuth });
   });
   // check auth token
   // authorize(socket);

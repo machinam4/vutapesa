@@ -10,6 +10,8 @@ module.exports = buildSchema(`
     A_users(phoneNumber: String!): [A_User]
     organization: Organization
     transactions(account: ID!): [Transaction]
+
+    
   }
   type Mutation {
     loginUser(phoneNumber: String!, password: String!): AuthData
@@ -18,7 +20,16 @@ module.exports = buildSchema(`
     sendMessage(message: String!): Chat
     placeBet(betInput: BetInput): Bet
     getUser(userId: ID!): User!
+    
+    #auth password reset
+    getCode(phoneNumber: String!): Response
+    confirmCode(phoneNumber: String!, code: String!): Response
+    changePassword(phoneNumber: String!, password: String!): Response
 
+  }
+  type Response {
+    code: String
+    message: String
   }
 
   type A_User {
@@ -101,5 +112,12 @@ module.exports = buildSchema(`
     message: String!
     user: User
     createdAt: Date
+  }
+
+  #typedefs authReset Password
+  type Another {
+    _id: ID
+    hash: String!
+    bust: Float!
   }
 `);

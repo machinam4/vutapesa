@@ -2,6 +2,10 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Account = require("../models/Account");
+const { MsgSend } = require("./smsSend");
+const PasswordReset = require("../models/PasswordReset");
+const moment = require("moment");
+const rnd = require("random-number");
 
 const generateAccNo = () => {
   // create user account no using id
@@ -45,39 +49,6 @@ const register = async (phoneNumber, username, password) => {
 
 module.exports = {
   register,
-  // : (phoneNumber, username, password) => {
-  //   return User.findOne({})
-  //     .then((user) => {
-  //       if (user) {
-  //         throw new Error("Phone Number already exists");
-  //       }
-  //       return bcrypt.hash(password, 12);
-  //     })
-  //     .then((hashedPassword) => {
-  //       const userModel = new User({
-  //         phoneNumber: phoneNumber,
-  //         username: username,
-  //         password: hashedPassword,
-  //       });
-  //       return userModel.save().then((user) => {
-  //         generateAccNo().then((AccountNo) => {
-  //           const account = new Account({
-  //             accountNumber: AccountNo,
-  //             user: user,
-  //           });
-  //           return account.save().then((account) => {
-  //             user.account = account;
-  //             return user;
-  //           });
-  //           // return user;
-  //         });
-  //       });
-  //     })
-
-  //     .catch((err) => {
-  //       throw err;
-  //     });
-  // },
 
   login: async (phoneNumber, password) => {
     const user = await User.findOne({ phoneNumber: phoneNumber });
@@ -123,6 +94,90 @@ module.exports = {
       username: user.username,
       token,
       tokenValidity: 24000,
+    };
+  },
+
+  checkUser: async ({ phoneNumber }) => {
+    const user = await User.findOne({ phoneNumber: phoneNumber });
+    if (!user) {
+      throw new Error("User Not Found");
+    }
+    try {
+      const code = rnd({ min: 100000, max: 999999, integer: true });
+      await PasswordReset.create({
+        code: code,
+        user: user,
+      });
+      const msgs =
+        code +
+        " is your MultiChapaa Verification Code. Please, ignore this message if you did not request your Password to be reset";
+      await MsgSend(msgs, user.phoneNumber).then((res) => {
+        return {
+          status: "success",
+          message: "Verification code sent to your phone",
+        };
+      });
+    } catch (error) {
+      throw new Error("Request Failed, Try again later!");
+    }
+  },
+
+  confirmOTP: async ({ phoneNumber, code }) => {
+    const resetCode = await PasswordReset.findOne({ code: code }).populate(
+      "user"
+    );
+    if (!resetCode) {
+      throw new Error("Invalid Code");
+    }
+    if (phoneNumber !== resetCode.user.phoneNumber) {
+      resetCode.delete();
+      throw new Error("Invalid Code phone Number");
+    }
+    try {
+      const expired = moment().diff(moment(resetCode.createdAt));
+      if (expired > 60000) {
+        await resetCode.delete();
+        throw new Error("Code Expired, Try again");
+      }
+      await resetCode.delete();
+      return {
+        status: "success",
+        code: "success",
+        message: "Code Verified",
+      };
+    } catch (error) {
+      console.error(new Error(error));
+      return {
+        status: "error",
+        message: "Request Failed",
+      };
+    }
+  },
+  passwordChange: async ({ phoneNumber, password }) => {
+    const user = await User.findOne({ phoneNumber: phoneNumber }).populate(
+      "account"
+    );
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+    user.password = hashedPassword;
+    await user.save();
+    // send password change message
+    return {
+      status: "success",
+      code: "success",
+      message: "Code Verified",
+    };
+  },
+
+  passwordLoggedIn: async (user, password) => {
+    const hashedPassword = await bcrypt.hash(password, 12);
+    user.password = hashedPassword;
+    await user.save();
+    // send password change message
+    return {
+      status: "success",
+      code: "success",
+      message: "Code Verified",
     };
   },
 };
