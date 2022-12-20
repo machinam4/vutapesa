@@ -42,7 +42,7 @@ module.exports = buildSchema(`
   }
   type Account {
     _id: ID!
-    balance: Int!
+    balance: Float!
   }
   type Organization {
     totalFunds: Float
