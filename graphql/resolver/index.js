@@ -27,10 +27,11 @@ module.exports = {
 
   // admin queries
   // find users
-  A_users: async ({ phoneNumber }, req) => {
+  A_users: async (args, req) => {
     if (!req.isAuth) {
       throw new Error("Unauthenticated");
     }
+    const phoneNumber = args.phoneNumber;
     if (phoneNumber === "") {
       return User.find({ role: "player" })
         .sort({ createdAt: -1 })
@@ -49,18 +50,18 @@ module.exports = {
     }
   },
 
-  organization: async (req) => {
+  organization: async (args, req) => {
     if (!req.isAuth) {
       throw new Error("Unauthenticated");
     }
     return Organization.findOne().sort({ createdAt: -1 });
   },
 
-  transactions: async ({ account }, req) => {
+  transactions: async (args, req) => {
     if (!req.isAuth) {
       throw new Error("Unauthenticated");
     }
-    return Transaction.find({ account: account }).sort({ createdAt: -1 });
+    return Transaction.find({ account: args.account }).sort({ createdAt: -1 });
   },
 
   // bets manpulations

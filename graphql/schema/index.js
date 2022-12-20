@@ -45,19 +45,19 @@ module.exports = buildSchema(`
     balance: Int!
   }
   type Organization {
-    totalFunds: Int
-    walletFunds: Int
-    totalTax: Int
-    houseFunds: Int
-    waitingFunds: Int
-    withdrawals: Int
+    totalFunds: Float
+    walletFunds: Float
+    totalTax: Float
+    houseFunds: Float
+    waitingFunds: Float
+    withdrawals: Float
     createdAt: Date
   }
   type Transaction {
-    winnings: Int
-    winAmount: Int
-    taxAmount: Int
-    amount: Int
+    winnings: Float
+    winAmount: Float
+    taxAmount: Float
+    amount: Float
     transCode: String
     type: String
     createdAt: Date

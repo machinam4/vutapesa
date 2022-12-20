@@ -162,7 +162,7 @@ const expressSTK = async (request, response) => {
   }
 };
 
-const validation = async ({ request, response }) => {
+const validation = async (request, response) => {
   const mpesa = request.body;
   // const mpesa = await PaybillC2B.create(mpesaResponse)
   const account = await Account.find({ account_no: mpesa.BillRefNumber });
@@ -179,7 +179,7 @@ const validation = async ({ request, response }) => {
   }
 };
 
-const registerUrl = async ({ request, response }) => {
+const registerUrl = async (request, response) => {
   const accessToken = await getApiToken();
   await unirest("POST", process.env.MPESA_URL + "/mpesa/c2b/v1/registerurl")
     .headers({
@@ -211,7 +211,7 @@ const registerUrl = async ({ request, response }) => {
     });
 };
 
-const confirmation = async ({ request, response }) => {
+const confirmation = async (request, response) => {
   const mpesaResponse = request.body;
   const mpesa = await PaybillC2B.create(mpesaResponse);
   const account = await Account.find({

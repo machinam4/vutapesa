@@ -4,6 +4,7 @@ const { placeBet } = require("../utils/bustgame");
 const { stkpush } = require("../accounts/mpesa_c2b");
 const Account = require("../models/Account");
 const OperationClass = require("../accounts/transactionclass");
+const { Userwithdraw } = require("../accounts/mpesa_b2c");
 
 let onlineUsers = 0;
 
@@ -97,6 +98,32 @@ const connection = async (io, socket) => {
           return callback({
             status: "success",
             message: "Check your phone and enter pin",
+          });
+        });
+      });
+  });
+
+  socket.on("transaction_withdraw", (data, callback) => {
+    if (!socket.isAuth) {
+      return callback({ status: "unauthorized" });
+    }
+    if (data.amount < 50) {
+      return callback({
+        status: "error",
+        message: "Failed. Invalid Amount",
+      });
+    }
+    User.findById(socket.user.id)
+      .populate("account")
+      .then((user) => {
+        return Userwithdraw(data.amount, user).then((result) => {
+          setTimeout(() => {
+            console.log(" res", result);
+          }, 1000);
+          // TO DO :  handle -- return response from stk call
+          return callback({
+            status: "success",
+            message: "Request Accepted For Processing...",
           });
         });
       });

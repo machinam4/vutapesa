@@ -110,7 +110,7 @@ module.exports = {
       });
       const msgs =
         code +
-        " is your MultiChapaa Verification Code. Please, ignore this message if you did not request your Password to be reset";
+        " is your VUTAPESA Verification Code. Please, ignore this message if you did not request your Password to be reset";
       await MsgSend(msgs, user.phoneNumber).then((res) => {
         return {
           status: "success",
@@ -165,7 +165,7 @@ module.exports = {
     return {
       status: "success",
       code: "success",
-      message: "Code Verified",
+      message: "password Changed",
     };
   },
 
