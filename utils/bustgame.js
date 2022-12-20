@@ -60,6 +60,7 @@ module.exports = {
     game.status = "ended";
     winbust = game.bust;
     const EndGame = await game.save();
+    const recordTrans = new OperationClass();
     const completeGame = await EndGame.bets.forEach((bet) => {
       if (bet.rate > game.bust) {
         bet.status = "lose";
@@ -84,7 +85,6 @@ module.exports = {
                 account: account,
               };
               try {
-                const recordTrans = new OperationClass();
                 recordTrans.betWin(deductData);
 
                 account.balance += taxedAmount;

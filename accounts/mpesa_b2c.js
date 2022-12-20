@@ -97,6 +97,7 @@ const Userwithdraw = async (withdrawAmount, user) => {
 /* start mpesa callback for stk...add to db */
 const withdrawConfirm = async (request, response) => {
   const userResponse = request.body.Result;
+  console.log(userResponse);
   const transaction = await PaybillB2C.findOne({
     ConversationId: userResponse.ConversationID,
   }).populate("account");
@@ -146,7 +147,7 @@ const withdrawConfirm = async (request, response) => {
         "DD.MM.YYYY hh:mm:ss"
       ).format("YYYYMMDDhhmmss"),
       payments_id: transaction.id,
-      user_id: transaction.user_id,
+      account: transaction.account,
     };
     await Payments.create(payments);
     const savedPayment = await Payment.findOne({

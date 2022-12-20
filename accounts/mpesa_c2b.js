@@ -1,6 +1,7 @@
 const moment = require("moment");
 const unirest = require("unirest");
 const Account = require("../models/Account");
+const PaybillC2B = require("../models/PaybillC2B");
 const PaybillStk = require("../models/PaybillStk");
 const Payments = require("../models/Payments");
 const OperationClass = require("./transactionclass");
@@ -165,7 +166,7 @@ const expressSTK = async (request, response) => {
 const validation = async (request, response) => {
   const mpesa = request.body;
   // const mpesa = await PaybillC2B.create(mpesaResponse)
-  const account = await Account.find({ account_no: mpesa.BillRefNumber });
+  const account = await Account.findOne({ accountNumber: mpesa.BillRefNumber });
   if (!account) {
     return response.status(200).send({
       ResultCode: "C2B00012",
@@ -214,9 +215,15 @@ const registerUrl = async (request, response) => {
 const confirmation = async (request, response) => {
   const mpesaResponse = request.body;
   const mpesa = await PaybillC2B.create(mpesaResponse);
-  const account = await Account.find({
-    account_no: mpesa.BillRefNumber,
-  }).first();
+  const account = await Account.findOne({
+    accountNumber: mpesa.BillRefNumber,
+  });
+  if (!account) {
+    return response.status(200).send({
+      ResultCode: "C2B00012",
+      ResultDesc: "Rejected",
+    });
+  }
 
   const payments = {
     amount: parseInt(mpesa.TransAmount),
@@ -226,7 +233,7 @@ const confirmation = async (request, response) => {
     payments_id: mpesa.id,
     account: account,
   };
-  await Payment.create(payments);
+  await Payments.create(payments);
   account.balance += payments.amount;
   // TO DO: add the funds to account
   const recordTrans = new OperationClass();

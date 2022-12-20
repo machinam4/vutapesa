@@ -6,17 +6,13 @@ const Account = require("../models/Account");
 const OperationClass = require("../accounts/transactionclass");
 const { Userwithdraw } = require("../accounts/mpesa_b2c");
 
-let onlineUsers = 0;
-
 //connection definition
 const connection = async (io, socket) => {
   // on connection function
-  onlineUsers++;
+  const onlineUsers = socket.conn.server.clientsCount;
   console.log(`⚡: ${socket.id} user connected`);
-
   socket.emit("users_online", onlineUsers);
   socket.on("disconnection", () => {
-    onlineUsers--;
     socket.emit("users_onlne", onlineUsers);
   });
 

@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const PaybillC2BSchema = new Schema(
   {
     TransactionType: {
-      type: Number,
+      type: String,
     },
     TransID: {
       type: String,
@@ -17,7 +17,7 @@ const PaybillC2BSchema = new Schema(
       type: String,
     },
     BusinessShortCode: {
-      type: Number,
+      type: String,
     },
     BillRefNumber: {
       type: String,

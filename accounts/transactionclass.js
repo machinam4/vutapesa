@@ -99,14 +99,14 @@ class OperationClass {
     const OrganizationData = await Organization.findOne().sort({
       createdAt: -1,
     });
-    const payIns =
-      OrganizationData.waitingFunds - Number(transactionData.amount);
+    // const payIns =
+    //   OrganizationData.waitingFunds - Number(transactionData.amount);
     const newOrganizationData = {
       totalTax: OrganizationData.totalTax + transactionData.taxAmount,
       totalFunds: OrganizationData.totalFunds,
       walletFunds:
         OrganizationData.walletFunds + Number(transactionData.amount),
-      houseFunds: OrganizationData.houseFunds + payIns,
+      houseFunds: OrganizationData.houseFunds,
       waitingFunds: OrganizationData.waitingFunds - transactionData.winnings,
       withdrawals: OrganizationData.withdrawals,
     };
@@ -141,12 +141,12 @@ class OperationClass {
       // console.log(OrganizationData)
       // console.log(newOrganizationData)
       await Organization.create(newOrganizationData);
-      await Transaction.create({
-        amount: payIns,
-        transCode: await this.generateTransCode(),
-        type: "bet",
-        user_id: "1",
-      });
+      // await Transaction.create({
+      //   amount: payIns,
+      //   transCode: await this.generateTransCode(),
+      //   type: "bet",
+      //   user_id: "1",
+      // });
       // emit Organization update event
       return "ok";
     }
