@@ -26,7 +26,15 @@ module.exports = buildSchema(`
     confirmCode(phoneNumber: String!, code: String!): Response
     changePassword(phoneNumber: String!, password: String!): Response
 
+
+    #smsfunctions
+    uploadcontacts(contacts: [[String]]) : Response
+    sendbulksms(message: String!, msgCount: Int!) : Response
+
   }
+
+
+
   type Response {
     code: String
     message: String

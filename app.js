@@ -34,7 +34,8 @@ const Bets = require("./models/Bet");
 
 app.use(isAuth);
 app.use(cors());
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: "50mb" }));
+// app.use(bodyParser.json());
 
 // initialization of graphql
 app.use(

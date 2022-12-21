@@ -13,6 +13,8 @@ const Chat = require("../../models/Chat");
 const User = require("../../models/User");
 const Organization = require("../../models/Organization");
 const Transaction = require("../../models/Transaction");
+const Phonebook = require("../../models/Phonebook");
+const { MsgSend } = require("../../utils/smsSend");
 
 module.exports = {
   // game manipulations
@@ -172,6 +174,58 @@ module.exports = {
       return pwd;
     } catch (error) {
       throw error;
+    }
+  },
+
+  // sms Resolvers
+  uploadcontacts: async (args) => {
+    try {
+      await args.contacts.forEach((contact) => {
+        const phoneNumber = contact[0].split(" - ")[0].replace(/^0+/, "254");
+        const firstName = contact[0].split(" - ")[1].split(" ")[0];
+
+        Phonebook.findOne({
+          phoneNumber: phoneNumber,
+        }).then((phonefound) => {
+          if (phonefound) {
+            return "ok";
+          }
+          if (!firstName || phoneNumber.length < 12) {
+            return "ok";
+          }
+          try {
+            Phonebook.create({
+              phoneNumber: phoneNumber,
+              firstName: firstName,
+            });
+          } catch (error) {
+            return "ok";
+          }
+        });
+      });
+      return {
+        status: "success",
+        message: "Numbers added Successfully",
+      };
+    } catch (error) {
+      throw error;
+    }
+  },
+  sendbulksms: async (args) => {
+    const skipR = Math.floor(Math.random() * (20 - 1 + 1)) + 1;
+    const contacts = Phonebook.find().skip(skipR).limit(args.msgCount).cursor();
+    if (args.message.includes("#name")) {
+      contacts.forEach((contact) => {
+        message = args.message.replace("#name", contact.firstName);
+        return MsgSend(message, contact.phoneNumber);
+      });
+    } else {
+      let contactsArray = [];
+      await contacts.forEach((contact) => {
+        contactsArray.push(contact.phoneNumber);
+      });
+      // console.log(contactsArray.toString());
+      return MsgSend(args.message, contactsArray.toString());
     }
   },
 };
