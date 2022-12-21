@@ -157,7 +157,7 @@ class OperationClass {
       amount: data.amount,
       transCode: data.transCode,
       type: "withdrawal",
-      user_id: data.user_id,
+      account: data.account,
     };
     try {
       const OrganizationData = await Organization.findOne().sort({

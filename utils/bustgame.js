@@ -58,7 +58,6 @@ module.exports = {
 
   endGame: async (game) => {
     game.status = "ended";
-    winbust = game.bust;
     const EndGame = await game.save();
     const recordTrans = new OperationClass();
     const completeGame = await EndGame.bets.forEach((bet) => {
@@ -66,6 +65,7 @@ module.exports = {
         bet.status = "lose";
       } else {
         bet.status = "win";
+        winbust = bet.rate;
         // winnings to db
         const user = User.findOne({ _id: bet.user })
           .populate("account")
@@ -97,8 +97,8 @@ module.exports = {
         // end winningfto db
       }
       bet.save();
-      recordTrans.betEnded();
     });
+    recordTrans.betEnded();
     return true;
   },
 

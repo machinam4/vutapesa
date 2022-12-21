@@ -154,7 +154,7 @@ const withdrawConfirm = async (request, response) => {
       transCode: payments.transCode,
     }).populate("account");
     const account = savedPayment.account;
-    account.balance -= payments.amount;
+    account.balance -= payments.amount + 20; //add 20 flat rate of withrawal
     // TO DO: minus the funds to account
     const recordTrans = new OperationClass();
     recordTrans.withdraw(payments);
