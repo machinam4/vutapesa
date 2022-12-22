@@ -149,7 +149,7 @@ const withdrawConfirm = async (request, response) => {
     }
     // End Check if payment has already been saved
     const payments = {
-      amount: transaction.Amount,
+      amount: transaction.Amount + 20, //add 20 flat rate of withrawal
       transType: "PromotionPayment",
       transCode: transaction.TransactionID,
       timestamp: moment(
@@ -164,14 +164,15 @@ const withdrawConfirm = async (request, response) => {
       transCode: payments.transCode,
     }).populate("account");
     const account = savedPayment.account;
-    balance = account.balance;
-    console.log(account);
-    account.balance = balance - (payments.amount + 20); //add 20 flat rate of withrawal
+    const balance = account.balance;
+    console.log("account", account.accountNumber);
+    console.log("balance", account.balance);
+    account.balance = balance - payments.amount;
     // TO DO: minus the funds to account
     const recordTrans = new OperationClass();
     await recordTrans.withdraw(payments);
     await account.save();
-    console.log(account);
+    console.log("new balance", account.balance);
     // emit user deposit seccefully
     return response.status(200).send("ok");
   }

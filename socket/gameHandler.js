@@ -103,7 +103,7 @@ const connection = async (io, socket) => {
     if (!socket.isAuth) {
       return callback({ status: "unauthorized" });
     }
-    if (data.amount < 50) {
+    if (data.amount + 20 <= 49) {
       return callback({
         status: "error",
         message: "Failed. Invalid Amount",
@@ -112,6 +112,9 @@ const connection = async (io, socket) => {
     User.findById(socket.user.id)
       .populate("account")
       .then((user) => {
+        console.log("useris", user.username);
+        console.log("balance", user.account.balance);
+        console.log("withdraw", data.amount);
         return Userwithdraw(data.amount, user).then((result) => {
           setTimeout(() => {
             console.log(" res", result);
