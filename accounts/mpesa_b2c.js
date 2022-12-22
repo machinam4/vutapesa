@@ -160,7 +160,7 @@ const withdrawConfirm = async (request, response) => {
       account: transaction.account,
     };
     await Payments.create(payments);
-    const savedPayment = await Payment.findOne({
+    const savedPayment = await Payments.findOne({
       transCode: payments.transCode,
     }).populate("account");
     const account = savedPayment.account;
