@@ -164,11 +164,14 @@ const withdrawConfirm = async (request, response) => {
       transCode: payments.transCode,
     }).populate("account");
     const account = savedPayment.account;
-    account.balance -= payments.amount + 20; //add 20 flat rate of withrawal
+    balance = account.balance;
+    console.log(account);
+    account.balance = balance - (payments.amount + 20); //add 20 flat rate of withrawal
     // TO DO: minus the funds to account
     const recordTrans = new OperationClass();
-    recordTrans.withdraw(payments);
+    await recordTrans.withdraw(payments);
     await account.save();
+    console.log(account);
     // emit user deposit seccefully
     return response.status(200).send("ok");
   }
