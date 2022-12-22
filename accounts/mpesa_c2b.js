@@ -199,7 +199,7 @@ const registerUrl = async (request, response) => {
     )
     .end((res) => {
       if (res.error) {
-        // console.log(new Error(res.error))
+        console.log(new Error(res.error));
         return response.status(400).send({
           status: "error",
           message: "Request failed, check details",
