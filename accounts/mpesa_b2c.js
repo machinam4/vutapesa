@@ -107,7 +107,7 @@ const withdrawConfirm = async (request, response) => {
     transaction.TransactionID = userResponse.TransactionID;
     await transaction.save();
     // send sms transaction failed
-  } else {
+  } else if (userResponse.ResultCode === 0) {
     const transactionItem = userResponse.ResultParameters.ResultParameter;
     transaction.ResultCode = userResponse.ResultCode;
     await transactionItem.forEach((Item) => {
@@ -160,10 +160,10 @@ const withdrawConfirm = async (request, response) => {
       account: transaction.account,
     };
     await Payments.create(payments);
-    const savedPayment = await Payments.findOne({
-      transCode: payments.transCode,
-    }).populate("account");
-    const account = savedPayment.account;
+    // const savedPayment = await Payments.findOne({
+    //   transCode: payments.transCode,
+    // }).populate("account");
+    const account = transaction.account;
     const balance = account.balance;
     console.log("account", account.accountNumber);
     console.log("balance", account.balance);

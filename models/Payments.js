@@ -16,6 +16,9 @@ const PaymentSchema = new Schema(
     timestamp: {
       type: String,
     },
+    payments_id: {
+      type: String,
+    },
     account: {
       type: Schema.Types.ObjectId,
       ref: "Account",
