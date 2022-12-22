@@ -138,7 +138,11 @@ const expressSTK = async (request, response) => {
       }
     });
     await transaction.save();
-    const payments = {
+    await Payment.findOne({transCode: transaction.MpesaReceiptNumber}).then((payment)=>{
+      if(payment){
+        return null
+      }
+      const payments = {
       amount: transaction.Amount,
       transType: "payBillOnline",
       transCode: transaction.MpesaReceiptNumber,
@@ -162,6 +166,8 @@ const expressSTK = async (request, response) => {
     console.log(account.balance);
     // emit user deposit seccefully
     return response.status(200).send("ok");
+    })
+    
   }
 };
 
