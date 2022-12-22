@@ -138,37 +138,40 @@ const expressSTK = async (request, response) => {
       }
     });
     await transaction.save();
-    await Payments.findOne({ transCode: transaction.MpesaReceiptNumber }).then(
-      (payment) => {
-        if (payment) {
-          return response.status(200).send("ok");
-        }
-        const payments = {
-          amount: transaction.Amount,
-          transType: "payBillOnline",
-          transCode: transaction.MpesaReceiptNumber,
-          timestamp: transaction.TransactionDate,
-          payments_id: transaction.id,
-          account: transaction.account,
-        };
-        Payments.create(payments);
-        const savedPayment = Payments.findOne({
-          transCode: payments.transCode,
-        }).populate("account");
-        const account = savedPayment.account;
 
-        account.balance += payments.amount;
-        // TO DO: add the funds to account
-        const recordTrans = new OperationClass();
-        recordTrans.deposit(payments);
-        // console.log(account);
+    // Check if payment has already been saved
+    const payment = await Payments.findOne({
+      transCode: transaction.MpesaReceiptNumber,
+    });
+    if (payment !== null) {
+      return response.status(200).send("success");
+    }
+    // End Check if payment has already been saved
 
-        account.save();
-        console.log(account.balance);
-        // emit user deposit seccefully
-        return response.status(200).send("ok");
-      }
-    );
+    const payments = {
+      amount: transaction.Amount,
+      transType: "payBillOnline",
+      transCode: transaction.MpesaReceiptNumber,
+      timestamp: transaction.TransactionDate,
+      payments_id: transaction.id,
+      account: transaction.account,
+    };
+    await Payments.create(payments);
+    const savedPayment = await Payments.findOne({
+      transCode: payments.transCode,
+    }).populate("account");
+    const account = savedPayment.account;
+
+    account.balance += payments.amount;
+    // TO DO: add the funds to account
+    const recordTrans = new OperationClass();
+    await recordTrans.deposit(payments);
+    // console.log(account);
+
+    await account.save();
+    console.log(account.balance);
+    // emit user deposit seccefully
+    return response.status(200).send("ok");
   }
 };
 
@@ -241,30 +244,31 @@ const confirmation = async (request, response) => {
     });
   }
 
-  await Payments.findOne({ transCode: transaction.MpesaReceiptNumber }).then(
-    (payment) => {
-      if (payment) {
-        return response.status(200).send("ok");
-      }
+  // Check if payment has already been saved
+  const payment = await Payments.findOne({
+    transCode: mpesa.TransID,
+  });
+  if (payment !== null) {
+    return response.status(200).send("success");
+  }
+  // End Check if payment has already been saved
 
-      const payments = {
-        amount: parseInt(mpesa.TransAmount),
-        transType: mpesa.TransactionType,
-        transCode: mpesa.TransID,
-        timestamp: mpesa.TransTime,
-        payments_id: mpesa.id,
-        account: account,
-      };
-      Payments.create(payments);
-      account.balance += payments.amount;
-      // TO DO: add the funds to account
-      const recordTrans = new OperationClass();
-      recordTrans.deposit(payments);
-      account.save();
-      // emit account deposit seccefully
-      return response.status(200).send("ok");
-    }
-  );
+  const payments = {
+    amount: parseInt(mpesa.TransAmount),
+    transType: mpesa.TransactionType,
+    transCode: mpesa.TransID,
+    timestamp: mpesa.TransTime,
+    payments_id: mpesa.id,
+    account: account,
+  };
+  await Payments.create(payments);
+  account.balance += payments.amount;
+  // TO DO: add the funds to account
+  const recordTrans = new OperationClass();
+  recordTrans.deposit(payments);
+  await account.save();
+  // emit account deposit seccefully
+  return response.status(200).send("ok");
 };
 
 module.exports = { stkpush, expressSTK, validation, registerUrl, confirmation };
