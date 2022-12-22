@@ -182,7 +182,14 @@ const validation = async (request, response) => {
 
 const registerUrl = async (request, response) => {
   const accessToken = await getApiToken();
-  await unirest("POST", process.env.MPESA_URL + "/mpesa/c2b/v1/registerurl")
+  console.log(accessToken);
+  if (!accessToken) {
+    return {
+      status: "error",
+      message: "Api failure",
+    };
+  }
+  await unirest("POST", process.env.MPESA_URL + "/mpesa/c2b/v2/registerurl")
     .headers({
       "Content-Type": "application/json",
       Authorization: "Bearer " + accessToken,
@@ -199,7 +206,7 @@ const registerUrl = async (request, response) => {
     )
     .end((res) => {
       if (res.error) {
-        console.log(new Error(res.error));
+        console.log(res);
         return response.status(400).send({
           status: "error",
           message: "Request failed, check details",
