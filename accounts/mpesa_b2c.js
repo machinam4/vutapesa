@@ -103,7 +103,7 @@ const withdrawConfirm = async (request, response) => {
   const transaction = await PaybillB2C.findOne({
     ConversationId: userResponse.ConversationID,
   }).populate("account");
-  console.log("transaccount", account.accountNumber);
+  console.log("transaccount", transaction.account.accountNumber);
   console.log(transaction.account);
   if (userResponse.ResultCode === 2001) {
     transaction.ResultCode = userResponse.ResultCode;
