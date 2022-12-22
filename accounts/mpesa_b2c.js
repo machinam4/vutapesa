@@ -27,6 +27,7 @@ const Userwithdraw = async (withdrawAmount, user) => {
       throw new Error("Invalid withdraw Amount");
     }
 
+    console.log("Useraccount", user.account.accountNumber);
     /* Handle Mpesa Withdraw Request */
     const accessToken = await getB2CToken();
     await unirest(
@@ -102,6 +103,8 @@ const withdrawConfirm = async (request, response) => {
   const transaction = await PaybillB2C.findOne({
     ConversationId: userResponse.ConversationID,
   }).populate("account");
+  console.log("transaccount", account.accountNumber);
+  console.log(transaction.account);
   if (userResponse.ResultCode === 2001) {
     transaction.ResultCode = userResponse.ResultCode;
     transaction.TransactionID = userResponse.TransactionID;
