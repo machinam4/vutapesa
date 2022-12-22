@@ -139,29 +139,37 @@ const withdrawConfirm = async (request, response) => {
     });
     // console.log(transaction)
     await transaction.save();
-    const payments = {
-      amount: transaction.Amount,
-      transType: "PromotionPayment",
-      transCode: transaction.TransactionID,
-      timestamp: moment(
-        transaction.TransactionDate,
-        "DD.MM.YYYY hh:mm:ss"
-      ).format("YYYYMMDDhhmmss"),
-      payments_id: transaction.id,
-      account: transaction.account,
-    };
-    await Payments.create(payments);
-    const savedPayment = await Payment.findOne({
-      transCode: payments.transCode,
-    }).populate("account");
-    const account = savedPayment.account;
-    account.balance -= payments.amount + 20; //add 20 flat rate of withrawal
-    // TO DO: minus the funds to account
-    const recordTrans = new OperationClass();
-    recordTrans.withdraw(payments);
-    await account.save();
-    // emit user deposit seccefully
-    return response.status(200).send("ok");
+    await Payments.findOne({ transCode: transaction.MpesaReceiptNumber }).then(
+      (payment) => {
+        if (payment) {
+          return response.status(200).send("ok");
+        }
+        const payments = {
+          amount: transaction.Amount,
+          transType: "PromotionPayment",
+          transCode: transaction.TransactionID,
+          timestamp: moment(
+            transaction.TransactionDate,
+            "DD.MM.YYYY hh:mm:ss"
+          ).format("YYYYMMDDhhmmss"),
+          payments_id: transaction.id,
+          account: transaction.account,
+        };
+        Payments.create(payments);
+        const savedPayment = Payment.findOne({
+          transCode: payments.transCode,
+        }).populate("account");
+        const account = savedPayment.account;
+        balance = account.balance;
+        account.balance -= balance - (payments.amount + 20); //add 20 flat rate of withrawal
+        // TO DO: minus the funds to account
+        const recordTrans = new OperationClass();
+        recordTrans.withdraw(payments);
+        account.save();
+        // emit user deposit seccefully
+        return response.status(200).send("ok");
+      }
+    );
   }
 };
 
