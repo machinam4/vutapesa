@@ -151,13 +151,15 @@ const expressSTK = async (request, response) => {
       transCode: payments.transCode,
     }).populate("account");
     const account = savedPayment.account;
-    // console.log(user.phone)
+
     account.balance += payments.amount;
     // TO DO: add the funds to account
     const recordTrans = new OperationClass();
-    recordTrans.deposit(payments);
+    await recordTrans.deposit(payments);
     // console.log(account);
+
     await account.save();
+    console.log(account.balance);
     // emit user deposit seccefully
     return response.status(200).send("ok");
   }
