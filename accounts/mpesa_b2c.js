@@ -101,7 +101,7 @@ const withdrawConfirm = async (request, response) => {
   const userResponse = request.body.Result;
   console.log(userResponse);
   const transaction = await PaybillB2C.findOne({
-    ConversationId: userResponse.ConversationID,
+    ConversationID: userResponse.ConversationID,
   }).populate("account");
   console.log("transaccount", transaction.account.accountNumber);
   console.log(transaction.account);
