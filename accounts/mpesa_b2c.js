@@ -40,7 +40,8 @@ const Userwithdraw = async (withdrawAmount, user) => {
       .send(
         JSON.stringify({
           InitiatorName: process.env.MPESA_INITIATOR_NAME,
-          SecurityCredential: process.env.MPESA_B2C_PASSKEY,
+          SecurityCredential:
+            "AgZCjltcrexnERPeWPtOQdXy1FXK3niFII7vIyzk5lRrhmoNl9USGSE80LK6EA2KAXLgSimqaqwkpCsnuzm/s+jVCeTc0wQOUemUHwLdPZYOK56iWPSmDvm2fKv0rQhVkMziAB+fN2lpEychVGfohRXO//6lUCpPLjp5WJH5qPdxukyhuvnQFmQ0VIJkZTbFzuS6z3TKgAUAbOkhOZNFwKNjyB9PUKjNaICxD1NI8M0EFedXOlReXoxxfYz88whNIdftPwQBnj+Sb+7v77edpHNizQAh2jic+vzmUSq2n34qftb+p0Mf01c026elXArmy7Oddfuykcpn6fFdPJp6pA==",
           CommandID: "PromotionPayment",
           Amount: withdrawAmount,
           PartyA: process.env.MPESA_B2C_CODE,
@@ -56,14 +57,14 @@ const Userwithdraw = async (withdrawAmount, user) => {
       )
       .end((res) => {
         if (res.error) {
-          console.log(res.body);
+          console.log(res);
           return {
             status: "error",
             message: "Request failed, please try again later",
           };
         }
         /* start get body and catch error...add to db */
-        console.log(res.body);
+        console.log(2, res.body);
         const b2cData = {
           ConversationID: res.body.ConversationID,
           OriginatorConversationID: res.body.OriginatorConversationID,

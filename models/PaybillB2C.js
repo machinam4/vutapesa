@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const PaybillB2CSchema = new Schema(
   {
     ConversationID: {
-      type: Number,
+      type: String,
     },
     OriginatorConversationID: {
       type: String,
