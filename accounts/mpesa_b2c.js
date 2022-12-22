@@ -27,7 +27,7 @@ const Userwithdraw = async (withdrawAmount, user) => {
       throw new Error("Invalid withdraw Amount");
     }
 
-    console.log("Useraccount", user.account.accountNumber);
+    //console.log("Useraccount", user.account.accountNumber);
     /* Handle Mpesa Withdraw Request */
     const accessToken = await getB2CToken();
     await unirest(
@@ -58,14 +58,14 @@ const Userwithdraw = async (withdrawAmount, user) => {
       )
       .end((res) => {
         if (res.error) {
-          console.log(res);
+          //console.log(res);
           return {
             status: "error",
             message: "Request failed, please try again later",
           };
         }
         /* start get body and catch error...add to db */
-        console.log(2, res.body);
+        //console.log(2, res.body);
         const b2cData = {
           ConversationID: res.body.ConversationID,
           OriginatorConversationID: res.body.OriginatorConversationID,
@@ -75,7 +75,7 @@ const Userwithdraw = async (withdrawAmount, user) => {
         try {
           PaybillB2C.create(b2cData);
         } catch (error) {
-          console.log(new Error(error));
+          //console.log(new Error(error));
           return {
             status: "error",
             message: "Request failed, please try again later",
@@ -88,7 +88,7 @@ const Userwithdraw = async (withdrawAmount, user) => {
         };
       });
   } catch (error) {
-    console.log(new Error(error));
+    //console.log(new Error(error));
     return {
       status: "error",
       message: "Request failed, please try again later",
@@ -99,12 +99,12 @@ const Userwithdraw = async (withdrawAmount, user) => {
 /* start mpesa callback for stk...add to db */
 const withdrawConfirm = async (request, response) => {
   const userResponse = request.body.Result;
-  console.log(userResponse);
+  //console.log(userResponse);
   const transaction = await PaybillB2C.findOne({
     ConversationID: userResponse.ConversationID,
   }).populate("account");
-  console.log("transaccount", transaction.account.accountNumber);
-  console.log(transaction.account);
+  //console.log("transaccount", transaction.account.accountNumber);
+  //console.log(transaction.account);
   if (userResponse.ResultCode === 2001) {
     transaction.ResultCode = userResponse.ResultCode;
     transaction.TransactionID = userResponse.TransactionID;
@@ -168,14 +168,14 @@ const withdrawConfirm = async (request, response) => {
     // }).populate("account");
     const account = transaction.account;
     const balance = account.balance;
-    console.log("account", account.accountNumber);
-    console.log("balance", account.balance);
+    //console.log("account", account.accountNumber);
+    //console.log("balance", account.balance);
     account.balance = balance - payments.amount;
     // TO DO: minus the funds to account
     const recordTrans = new OperationClass();
     await recordTrans.withdraw(payments);
     await account.save();
-    console.log("new balance", account.balance);
+    //console.log("new balance", account.balance);
     // emit user deposit seccefully
     return response.status(200).send("ok");
   }

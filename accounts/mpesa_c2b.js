@@ -64,14 +64,14 @@ const stkpush = async (amount, user) => {
         )
         .end((res) => {
           if (res.error) {
-            console.log("error1", res.error);
+            //console.log("error1", res.error);
             return {
               status: "error",
               message: "Request failed, please try again later",
             };
           }
           /* start get body and catch error...add to db */
-          console.log("resrp", res.body);
+          //console.log("resrp", res.body);
           try {
             PaybillStk.create({
               MerchantRequestID: res.body.MerchantRequestID,
@@ -84,7 +84,7 @@ const stkpush = async (amount, user) => {
               message: "Request failed, please try again later",
             };
           }
-          console.log(12333);
+          //console.log(12333);
           /* End get body and catch error...add to db */
           return {
             status: "success",
@@ -98,7 +98,7 @@ const stkpush = async (amount, user) => {
       };
     }
   } catch (e) {
-    console.log(45555);
+    //console.log(45555);
     // throw new Error(e);
     return { status: "error", message: "The request failed" };
   }
@@ -169,7 +169,7 @@ const expressSTK = async (request, response) => {
     // console.log(account);
 
     await account.save();
-    console.log(account.balance);
+    //console.log(account.balance);
     // emit user deposit seccefully
     return response.status(200).send("ok");
   }
@@ -194,7 +194,7 @@ const validation = async (request, response) => {
 
 const registerUrl = async (request, response) => {
   const accessToken = await getApiToken();
-  console.log(accessToken);
+  //console.log(accessToken);
   if (!accessToken) {
     return {
       status: "error",
@@ -218,7 +218,7 @@ const registerUrl = async (request, response) => {
     )
     .end((res) => {
       if (res.error) {
-        console.log(res);
+        //console.log(res);
         return response.status(400).send({
           status: "error",
           message: "Request failed, check details",

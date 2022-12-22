@@ -10,7 +10,7 @@ const { Userwithdraw } = require("../accounts/mpesa_b2c");
 const connection = async (io, socket) => {
   // on connection function
   const onlineUsers = socket.conn.server.clientsCount;
-  console.log(`⚡: ${socket.id} user connected`);
+  //console.log(`⚡: ${socket.id} user connected`);
   socket.emit("users_online", onlineUsers);
   socket.on("disconnection", () => {
     socket.emit("users_onlne", onlineUsers);
@@ -69,7 +69,7 @@ const connection = async (io, socket) => {
   });
   //chatting
   socket.on("chat_send", (data) => {
-    console.log(data);
+    //console.log(data);
   });
 
   // transactions
@@ -88,7 +88,7 @@ const connection = async (io, socket) => {
       .then((user) => {
         const xDeposit = stkpush(data.amount, user).then((result) => {
           setTimeout(() => {
-            console.log(" res", result);
+            //console.log(" res", result);
           }, 1000);
           // TO DO :  handle -- return response from stk call
           return callback({
@@ -112,12 +112,12 @@ const connection = async (io, socket) => {
     User.findById(socket.user.id)
       .populate("account")
       .then((user) => {
-        console.log("useris", user.username);
-        console.log("balance", user.account.balance);
-        console.log("withdraw", data.amount);
+        //console.log("useris", user.username);
+        //console.log("balance", user.account.balance);
+        //console.log("withdraw", data.amount);
         return Userwithdraw(data.amount, user).then((result) => {
           setTimeout(() => {
-            console.log(" res", result);
+            //console.log(" res", result);
           }, 1000);
           // TO DO :  handle -- return response from stk call
           return callback({
