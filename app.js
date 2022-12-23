@@ -83,7 +83,7 @@ io.use(socketAuth);
 let intervalId;
 
 let counterValue = 10;
-let countInterval = 101;
+let countInterval = 30;
 
 const StartBust = () => {
   const waitCount = async () => {
@@ -104,9 +104,9 @@ const StartBust = () => {
   const bustCount = async (game) => {
     intervalId = await setInterval(() => {
       // incremenet count speed
-      if (countInterval >= 10 && counterValue <= 3) {
-        countInterval -= 10;
-      }
+      // if (countInterval >= 10 && counterValue <= 3) {
+      //   countInterval -= 10;
+      // }
       // end
       counterValue = counterValue + 0.01;
       io.sockets.emit("game_play", counterValue.toFixed(2));
