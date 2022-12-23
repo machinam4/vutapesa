@@ -83,26 +83,32 @@ io.use(socketAuth);
 let intervalId;
 
 let counterValue = 10;
+let countInterval = 101;
 
 const StartBust = () => {
   const waitCount = async () => {
     counterValue = 10; //set counter value to 0 before countoing
     intervalId = await setInterval(() => {
-      counterValue -= 0.5;
+      counterValue -= 0.1;
       // console.log(counterValue.toFixed(2));
       io.sockets.emit("game_wait", counterValue.toFixed(2));
-      if (counterValue === 0.5) {
+      if (counterValue <= 0.2) {
         clearInterval(intervalId);
         // console.log("second left = ", counterValue);
         bustStart();
       }
-    }, 200);
+    }, 100);
   };
 
   // count bust value
   const bustCount = async (game) => {
     intervalId = await setInterval(() => {
-      counterValue = counterValue + 0.03;
+      // incremenet count speed
+      if (countInterval >= 10 && counterValue <= 3) {
+        countInterval -= 10;
+      }
+      // end
+      counterValue = counterValue + 0.01;
       io.sockets.emit("game_play", counterValue.toFixed(2));
       // console.log("bust rate at= ", counterValue.toFixed(2));
       if (counterValue >= game.bust) {
@@ -114,13 +120,13 @@ const StartBust = () => {
           waitCount();
         }, 3000);
       }
-    }, 200);
+    }, countInterval);
   };
 
   // start burst rate
   const bustStart = async () => {
     const game = await createGame();
-    addBots();
+    // addBots();
     // console.log(game.bust);
     counterValue = 1; //set counter value to 0 before countoing
     setTimeout(() => {
