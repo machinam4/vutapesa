@@ -5,7 +5,7 @@ const User = require("../models/User");
 const socketIO = (server) =>
   new Server(server, {
     cors: {
-      origin: "http://localhost:3000",
+      origin: process.env.CLIENT_APP_URL,
       //   methods: ["GET", "POST"],
       credentials: true,
     },
