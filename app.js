@@ -147,8 +147,8 @@ server.listen(process.env.APP_PORT, () => {
   // mongoose connection
   mongoose
     .connect(
-      `mongodb+srv://machina:Wildfirehtc1@vutapesa.wbklwvb.mongodb.net/?retryWrites=true&w=majority`
-      // `mongodb://${process.env.MONGO_USER}:${process.env.MONGO_PWD}@127.0.0.1:${process.env.MONGO_PORT}/${process.env.MONGO_DB}?authSource=Admin`
+      process.env.MONGO_URI || //use this if using mongodb remote
+        `mongodb://${process.env.MONGO_USER}:${process.env.MONGO_PWD}@127.0.0.1:${process.env.MONGO_PORT}/${process.env.MONGO_DB}?authSource=Admin`
     )
     .then(() => {
       console.log("db connected");
