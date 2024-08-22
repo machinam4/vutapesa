@@ -1,0 +1,3 @@
+[submodule "vutapesa_client"]
+	path = vutapesa_client
+	url = https://github.com/machinam4/vutapesa_client.git
